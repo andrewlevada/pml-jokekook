@@ -1,4 +1,6 @@
 fastapi[all]
 pydantic
 streamlit
-requests
+requeststransformers
+torch
+uvicorn

@@ -8,10 +8,15 @@ WORKDIR /app
 COPY . /app
 
 # Install the necessary packages
-RUN pip install fastapi uvicorn scikit-learn
+RUN pip install fastapi uvicorn transformers torch
 
-# Expose port 80 to the outside world
-EXPOSE 80
+# Install additional system dependencies for PyTorch
+# RUN apt-get update && apt-get install -y \
+#     libgl1-mesa-glx \
+#     libglib2.0-0 \
+#     && rm -rf /var/lib/apt/lists/*
+
+EXPOSE 8000
 
 # Run the FastAPI server
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "80"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
