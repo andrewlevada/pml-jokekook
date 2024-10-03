@@ -9,7 +9,7 @@ services:
     depends_on:
       - api  
     networks:
-      - app-network  
+      - app-network
 
   # api
   api:  
