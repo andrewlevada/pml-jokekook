@@ -1,0 +1,5 @@
+outs:
+- md5: e32d4937d331efa59032fd460cc8cf5d
+  size: 24085786
+  hash: md5
+  path: shortjokes.csv
