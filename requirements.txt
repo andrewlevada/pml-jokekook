@@ -1,2 +1,5 @@
 fastapi[all]
 pydantic
+transformers
+torch
+uvicorn
