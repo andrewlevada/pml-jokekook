@@ -19,5 +19,5 @@ RUN pip install fastapi uvicorn transformers torch
 EXPOSE 8000
 
 # Run the FastAPI server
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["fastapi", "run", "app.py", "--port", "8000"]
 # uvicorn app:app --host 0.0.0.0 --port 8000
