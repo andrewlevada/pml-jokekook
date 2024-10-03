@@ -5,6 +5,7 @@ import torch
 
 model_name = "Qwen/Qwen2.5-0.5B"
 
+# Loading model
 model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -20,6 +21,7 @@ class GenerationRequest(BaseModel):
 async def generate_text(request: GenerationRequest):
     input_ids = tokenizer.encode(request.prompt, return_tensors="pt").to(model.device)
     
+    # Simple text generation (prompt engineering on app side)
     output = model.generate(
         input_ids,
         max_new_tokens=request.max_length,
