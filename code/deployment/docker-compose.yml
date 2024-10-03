@@ -1,24 +1,22 @@
-# version: '3.8'  # Version of the Docker Compose file format
-
 services:
-  web:  # Web service for the Streamlit app
+  web: 
     build:
-      context: ./app  # Directory where the Dockerfile is located (code/deployment/app)
+      context: ./app  
     ports:
-      - "8501:8501"  # Map port 8501 on host to port 8501 on the container
+      - "8501:8501"  
     depends_on:
-      - api  # Wait until the API service is up
+      - api  
     networks:
-      - app-network  # Define the network for communication with the API service
+      - app-network  
 
-  api:  # API service (Flask API or other)
+  api:  
     build:
-      context: ./api  # Directory where the API's Dockerfile is located (code/deployment/api)
+      context: ./api  
     ports:
-      - "8000:8000"  # Map port 5000 on host to port 5000 on the container
+      - "8000:8000"  
     networks:
-      - app-network  # Same network for communication
+      - app-network 
 
 networks:
-  app-network:  # Create a custom network for your services
+  app-network:
     driver: bridge
