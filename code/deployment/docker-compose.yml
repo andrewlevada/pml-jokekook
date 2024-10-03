@@ -1,4 +1,6 @@
 services:
+
+  # streamlit app
   web: 
     build:
       context: ./app  
@@ -9,6 +11,7 @@ services:
     networks:
       - app-network  
 
+  # api
   api:  
     build:
       context: ./api  
@@ -19,4 +22,5 @@ services:
 
 networks:
   app-network:
+    # create a bridge network
     driver: bridge
