@@ -15,7 +15,7 @@ services:
     build:
       context: ./api  # Directory where the API's Dockerfile is located (code/deployment/api)
     ports:
-      - "5000:5000"  # Map port 5000 on host to port 5000 on the container
+      - "8000:8000"  # Map port 5000 on host to port 5000 on the container
     networks:
       - app-network  # Same network for communication
 
