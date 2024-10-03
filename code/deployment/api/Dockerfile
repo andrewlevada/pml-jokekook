@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Install the necessary packages
-RUN pip install fastapi uvicorn transformers torch
+RUN pip install fastapi[standard] uvicorn transformers torch
 
 # Install additional system dependencies for PyTorch
 # RUN apt-get update && apt-get install -y \
