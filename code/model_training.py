@@ -60,17 +60,26 @@ print("\n\n\n\n\n\n\n")
 # print("Sample tokenized data:")
 # print(tokenized_dataset["train"][0])  # Print a sample to verify the tokenization
     
+
 # Training arguments
 print("Setting up training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     learning_rate=2e-4,
-    per_device_train_batch_size=16,
+    per_device_train_batch_size=2,
     num_train_epochs=3,
     weight_decay=0.01,
     save_strategy="epoch",
     logging_dir=LOG_DIR,
     save_total_limit=2,
+    gradient_accumulation_steps = 4,
+    warmup_steps = 5,
+    max_steps = 60,
+    logging_steps = 1,
+    optim = "adamw_8bit",
+    lr_scheduler_type = "linear",
+    seed = 3407,
+    report_to = "none", # Use this for WandB etc
 )
 
 # Trainer setup
@@ -80,7 +89,7 @@ trainer = SFTTrainer(
     tokenizer=tokenizer,
     train_dataset=formatted_dataset,
     dataset_text_field = "text",
-    dataset_num_proc = 2,
+    dataset_num_proc = 4,
     packing = False,
 )
 
