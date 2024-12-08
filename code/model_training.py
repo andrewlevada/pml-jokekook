@@ -25,6 +25,10 @@ print("Loading model and tokenizer...")
 tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
 model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=2)  # Adjust num_labels if needed
 
+tokenizer.pad_token = tokenizer.eos_token
+model.config.pad_token_id = tokenizer.eos_token_id
+
+
 # Custom joke prompt for formatting dataset
 joke_prompt = """write a joke in a given topic.
 
@@ -46,26 +50,12 @@ def formatting_prompts_func(examples):
 print("Formatting dataset...")
 formatted_dataset = dataset.map(formatting_prompts_func, batched=False)
 
-print(formatted_dataset[0])
-print("\n\n\n\n\n\n\n")
-
-# Tokenization function (Ensure the output is correctly structured)
-# def tokenize_function(examples):
-#     return tokenizer(examples["text"], padding="longest", truncation=True, return_tensors="pt")  # Use padding="longest"
-
-# print("Tokenizing dataset...")
-# tokenized_dataset = formatted_dataset.map(tokenize_function, batched=True)
-
-# Check tokenization output
-# print("Sample tokenized data:")
-# print(tokenized_dataset["train"][0])  # Print a sample to verify the tokenization
-    
 # Training arguments
 print("Setting up training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     learning_rate=2e-4,
-    per_device_train_batch_size=16,
+    per_device_train_batch_size=944,
     num_train_epochs=3,
     weight_decay=0.01,
     save_strategy="epoch",
@@ -80,7 +70,6 @@ trainer = SFTTrainer(
     tokenizer=tokenizer,
     train_dataset=formatted_dataset,
     dataset_text_field = "text",
-    dataset_num_proc = 2,
     packing = False,
 )
 
