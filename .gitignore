@@ -6,3 +6,7 @@ myenv
 .venv
 venv
 .env
+
+logs
+mlruns
+mlartifacts
