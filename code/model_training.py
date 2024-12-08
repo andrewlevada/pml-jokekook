@@ -1,11 +1,13 @@
-import os
-from datasets import load_dataset
+import datasets
 from transformers import (
     AutoTokenizer,
     AutoModelForSequenceClassification,
     TrainingArguments
 )
 from trl import SFTTrainer
+
+if __name__ != "__main__": 
+    exit()
 
 # File paths
 PROCESSED_FILE = "../data/processed/processed_7.csv"  # Make sure this path is correct
@@ -14,11 +16,7 @@ LOG_DIR = "../logs"
 
 # Load dataset
 print("Loading dataset...")
-dataset = load_dataset(
-    "csv",
-    data_files={"train": PROCESSED_FILE},  # Ensure validation file is specified if available
-    delimiter=";"  # Ensure the delimiter is correct
-)
+dataset = datasets.load_dataset("csv", data_files={"train": PROCESSED_FILE}, delimiter=";", split="train")
 print(f"Dataset loaded: {dataset}")
 
 # Load pre-trained model and tokenizer
@@ -40,42 +38,39 @@ EOS_TOKEN = tokenizer.eos_token  # Ensure proper termination of the model's outp
 
 # Function to format dataset for model input
 def formatting_prompts_func(examples):
-    jokes = examples["Joke"]
-    topics = examples["Joke topic"]
-    texts = []
-    for joke, topic in zip(jokes, topics):
-        text = joke_prompt.format(joke, topic) + EOS_TOKEN
-        texts.append(text)
-    return {"text": texts}
+    j = examples["Joke"]
+    t = examples["Joke topic"]
+    
+    return {"text": joke_prompt.format(j, t) + EOS_TOKEN}
 
 print("Formatting dataset...")
-formatted_dataset = dataset.map(formatting_prompts_func, batched=True)
+formatted_dataset = dataset.map(formatting_prompts_func, batched=False)
+
+print(formatted_dataset[0])
+print("\n\n\n\n\n\n\n")
 
 # Tokenization function (Ensure the output is correctly structured)
-def tokenize_function(examples):
-    return tokenizer(examples["text"], padding="longest", truncation=True, return_tensors="pt")  # Use padding="longest"
+# def tokenize_function(examples):
+#     return tokenizer(examples["text"], padding="longest", truncation=True, return_tensors="pt")  # Use padding="longest"
 
-print("Tokenizing dataset...")
-tokenized_dataset = formatted_dataset.map(tokenize_function, batched=True)
+# print("Tokenizing dataset...")
+# tokenized_dataset = formatted_dataset.map(tokenize_function, batched=True)
 
 # Check tokenization output
-print("Sample tokenized data:")
-print(tokenized_dataset["train"][0])  # Print a sample to verify the tokenization
-
+# print("Sample tokenized data:")
+# print(tokenized_dataset["train"][0])  # Print a sample to verify the tokenization
+    
 # Training arguments
 print("Setting up training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
-    evaluation_strategy="no",  # No separate validation split in this case
-    learning_rate=2e-5,
+    learning_rate=2e-4,
     per_device_train_batch_size=16,
     num_train_epochs=3,
     weight_decay=0.01,
     save_strategy="epoch",
     logging_dir=LOG_DIR,
     save_total_limit=2,
-    push_to_hub=False,
-    remove_unused_columns=False  # Prevents column removal during tokenization
 )
 
 # Trainer setup
@@ -83,8 +78,10 @@ trainer = SFTTrainer(
     model=model,
     args=training_args,
     tokenizer=tokenizer,
-    train_dataset=dataset["train"],
-    dataset_text_field = "text"
+    train_dataset=formatted_dataset,
+    dataset_text_field = "text",
+    dataset_num_proc = 2,
+    packing = False,
 )
 
 # Training the model

@@ -1,0 +1,15 @@
+artifact_uri: file:///D:/Projects/Innopolis%20University/pml-jokekook/code/mlruns/0/2c1e5c7142d848ed9b4c491b27f2c459/artifacts
+end_time: 1733697551108
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 2c1e5c7142d848ed9b4c491b27f2c459
+run_name: ../outputs/fine_tuned_model
+run_uuid: 2c1e5c7142d848ed9b4c491b27f2c459
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1733697550031
+status: 3
+tags: []
+user_id: levad
