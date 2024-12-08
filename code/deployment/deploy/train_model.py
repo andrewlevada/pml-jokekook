@@ -3,7 +3,7 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import DataLoader, Dataset
 import pandas as pd
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer
 
 def get_processed_data(file_path):
     data = pd.read_csv(file_path, sep=';')
@@ -41,8 +41,9 @@ jokes = processed_data['jokes']
 topics = processed_data['topics']
 
 # Load pre-trained model and tokenizer
-model = AutoModelForSequenceClassification.from_pretrained('Qwen/Qwen2.5-0.5B')
-tokenizer = AutoTokenizer.from_pretrained('Qwen/Qwen2.5-0.5B')
+model_name = "Qwen/Qwen2.5-0.5B"
+model = AutoModelForCausalLM.from_pretrained(model_name, torch_dtype=torch.float16, device_map="auto")
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 # Create dataset and dataloader
 dataset = JokesDataset(jokes, topics, tokenizer)
@@ -57,12 +58,20 @@ num_epochs = 10
 for epoch in range(num_epochs):
     for batch in dataloader:
         optimizer.zero_grad()
-        outputs = model(
-            input_ids=batch['input_ids'].to(device),
-            attention_mask=batch['attention_mask'].to(device),
-            labels=batch['labels'].to(device)
+        input_ids = batch['input_ids'].to(model.device)
+        attention_mask = batch['attention_mask'].to(model.device)
+        labels = batch['labels'].to(model.device)
+        
+        # Simple text generation (prompt engineering on app side)
+        output = model.generate(
+            input_ids,
+            attention_mask=attention_mask,
+            max_new_tokens=100,
+            num_return_sequences=1,
+            no_repeat_ngram_size=2
         )
-        loss = criterion(outputs.logits, batch['labels'].to(device))
+        
+        loss = criterion(output, labels)
         loss.backward()
         optimizer.step()
     print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
