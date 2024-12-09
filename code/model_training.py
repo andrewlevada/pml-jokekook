@@ -1,7 +1,7 @@
 import datasets
 from transformers import (
     AutoTokenizer,
-    AutoModelForSequenceClassification,
+    AutoModelForTokenClassification,
     TrainingArguments
 )
 from trl import SFTTrainer
@@ -22,8 +22,8 @@ print(f"Dataset loaded: {dataset}")
 # Load pre-trained model and tokenizer
 MODEL_NAME = "Qwen/Qwen2.5-0.5B"  # Ensure this model exists or use another available model
 print("Loading model and tokenizer...")
-tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
-model = AutoModelForSequenceClassification.from_pretrained(MODEL_NAME, num_labels=2)  # Adjust num_labels if needed
+tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME, max_length=1024, max_seq_length=1024)
+model = AutoModelForTokenClassification.from_pretrained(MODEL_NAME, num_labels=2, max_length=1024)
 
 tokenizer.pad_token = tokenizer.eos_token
 model.config.pad_token_id = tokenizer.eos_token_id
@@ -49,14 +49,17 @@ def formatting_prompts_func(examples):
 
 print("Formatting dataset...")
 formatted_dataset = dataset.map(formatting_prompts_func, batched=False)
+formatted_dataset = formatted_dataset.map(lambda x: {"text": x["text"][:1024]}, batched=False)
+
+max_seq_length = 1024
 
 # Training arguments
 print("Setting up training arguments...")
 training_args = TrainingArguments(
     output_dir=OUTPUT_DIR,
     learning_rate=2e-4,
-    per_device_train_batch_size=944,
-    num_train_epochs=3,
+    per_device_train_batch_size=8,
+    num_train_epochs=1,
     weight_decay=0.01,
     save_strategy="epoch",
     logging_dir=LOG_DIR,
@@ -70,7 +73,7 @@ trainer = SFTTrainer(
     tokenizer=tokenizer,
     train_dataset=formatted_dataset,
     dataset_text_field = "text",
-    packing = False,
+    max_seq_length=max_seq_length,
 )
 
 # Training the model
