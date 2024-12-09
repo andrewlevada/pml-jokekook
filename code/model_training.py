@@ -64,6 +64,14 @@ training_args = TrainingArguments(
     save_strategy="epoch",
     logging_dir=LOG_DIR,
     save_total_limit=2,
+    gradient_accumulation_steps = 4,
+    warmup_steps = 5,
+    max_steps = 60,
+    logging_steps = 1,
+    optim = "adamw_8bit",
+    lr_scheduler_type = "linear",
+    seed = 3407,
+    report_to = "none", # Use this for WandB etc
 )
 
 # Trainer setup
