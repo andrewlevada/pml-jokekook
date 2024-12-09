@@ -33,7 +33,13 @@ class LLMModel:
         print("Model loaded!")
 
     @modal.method()
-    def generate_text(self, prompt: str, max_length: int = 200) -> str:
+    def generate_text(self, topic: str, max_length: int = 200) -> str:
+        prompt = f"""
+        You are a joke generator. You are given a topic and you need to generate a joke about it.
+        Topic: {topic}
+        Joke: 
+        """
+        
         try:
             inputs = self.tokenizer.encode(prompt, return_tensors="pt")
             
@@ -53,7 +59,7 @@ class LLMModel:
 
 
 class Prompt(BaseModel):
-    prompt: str
+    topic: str
     max_length: int = 200
 
 
@@ -67,44 +73,11 @@ class Prompt(BaseModel):
     docs=True
 )
 def generate(prompt: Prompt):
-    if not prompt.prompt:
-        raise HTTPException(status_code=400, detail="Prompt cannot be empty")
+    if not prompt.topic:
+        raise HTTPException(status_code=400, detail="Topic cannot be empty")
     try:
-        generated_text = LLMModel.generate_text.remote(prompt.prompt, prompt.max_length)
+        generated_text = LLMModel.generate_text.remote(prompt.topic, prompt.max_length)
         return {"generated_text": generated_text}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
-
-
-
-
-
-# @app.function()
-# @modal.asgi_app()
-# def serve():
-#     import fastapi
-    
-#     app = fastapi.FastAPI(
-#         title="Jokekook API",
-#     )
-    
-#     app.add_middleware(
-#         CORSMiddleware,
-#         allow_origins=["*"],
-#         allow_credentials=True,
-#         allow_methods=["*"],
-#         allow_headers=["*"],
-#     )
-    
-#     # llm = LLMModel()
-    
-#     # @app.post("/generate")
-#     # def generate(prompt: Prompt):
-#     #     return llm.generate_text(prompt.prompt, prompt.max_length)
-    
-#     @app.get("/")
-#     def root():
-#         return {"message": "Up and running!"}
-    
-#     return app
 
