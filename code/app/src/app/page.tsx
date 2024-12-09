@@ -5,9 +5,11 @@ import { useState } from "react";
 export default function Home() {
   const [joke, setJoke] = useState("");
   const [topic, setTopic] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = () => {
-    const endpoint = "https://andrewlevada--generate.modal.run/generate";
+    setLoading(true);
+    const endpoint = "https://andrewlevada--generate.modal.run";
 
     fetch(endpoint, {
       method: "POST",
@@ -15,7 +17,8 @@ export default function Home() {
     })
       .then((response) => response.json())
       .then((data) => setJoke(data.joke))
-      .catch((error) => console.error("Error:", error));
+      .catch((error) => console.error("Error:", error))
+      .finally(() => setLoading(false));
   };
 
   return (
@@ -31,7 +34,7 @@ export default function Home() {
         />
         
         <button className="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors" onClick={handleSubmit}>
-          Think of a joke
+          {loading ? "Thinking..." : "Think of a joke"}
         </button>
 
         <div className="w-full p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg border border-gray-200 dark:border-gray-700">
